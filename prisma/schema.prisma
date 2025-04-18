@@ -10,18 +10,18 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Tarefa {
-    id          Int        @id @default(autoincrement())
-    titulo      String
-    descricao   String
-    concluido   Boolean    @default(false)
-    criadoEm    DateTime   @default(now())
-    categoria   Categoria? @relation(fields: [categoriaId], references: [id])
-    categoriaId Int?
+model Task {
+    id          Int       @id @default(autoincrement())
+    title       String
+    description String
+    completed   Boolean   @default(false)
+    createdAt   DateTime  @default(now())
+    category    Category? @relation(fields: [categoryId], references: [id])
+    categoryId  Int?
 }
 
-model Categoria {
-    id      Int      @id @default(autoincrement())
-    nome    String   @unique
-    tarefas Tarefa[]
+model Category {
+    id    Int    @id @default(autoincrement())
+    name  String @unique
+    Tasks Task[]
 }
