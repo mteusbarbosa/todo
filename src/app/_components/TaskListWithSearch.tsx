@@ -180,12 +180,12 @@ export function TaskListWithSearch({ initialTasks }: TaskListWithSearchProps) {
           placeholder="Pesquisar tarefa..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full sm:w-auto flex-grow rounded border border-gray-300 px-3 py-2 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          className="w-full sm:w-auto flex-grow rounded border border-gray-300 px-3 py-2 text-black dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         />
       </div>
 
       {/* Lista de Tarefas */}
-      <h2 className="mb-4 text-2xl font-semibold text-center text-gray-800">Tarefas</h2>
+      <h2 className="mb-4 text-2xl font-semibold text-center text-gray-800 dark:text-slate-100">Tarefas</h2>
       {tasksQuery.error && <p className="text-center text-red-500">Erro ao carregar tarefas: {tasksQuery.error.message}</p>}
       {listContent}
     </div>

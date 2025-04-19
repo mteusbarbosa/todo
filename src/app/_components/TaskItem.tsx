@@ -147,18 +147,19 @@ export function TaskItem({ task }: { task: Task }) {
 
     // Define classes condicionais com base no status 'completed' da PROP 'task'
     // A atualização otimista garante que 'task' terá o valor atualizado rapidamente
-    const cardBgClass = task.completed ? 'bg-gray-100' : 'bg-white';
-    const titleClass = task.completed ? 'line-through text-gray-500' : 'text-gray-800';
-    const categoryClass = task.completed ? 'bg-gray-200 text-gray-600' : 'bg-indigo-100 text-indigo-800';
-    const descriptionClass = task.completed ? 'text-gray-500' : 'text-gray-600';
+    const cardBgClass = task.completed ? 'bg-gray-100 dark:bg-gray-700' : 'bg-white dark:bg-gray-800';
+    const titleClass = task.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-gray-100';
+    const categoryClass = task.completed ? 'bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300';
+    const descriptionClass = task.completed ? 'text-gray-500 dark:text-gray-400' : 'text-gray-600 dark:text-gray-300';
     const isMutating = toggleCompleteMutation.isPending || deleteTaskMutation.isPending;
 
     return (
         <li
+            suppressHydrationWarning
             ref={setNodeRef} // Conecta o hook ao elemento
             style={style}     // Aplica os estilos de transformação e transição
             {...attributes}   // Aplica atributos de acessibilidade e role
-            className={`mb-4 rounded border border-gray-300 p-4 shadow-sm transition-colors duration-200 ${cardBgClass}`}
+            className={`mb-4 rounded border border-gray-300 dark:border-gray-600 p-4 shadow-sm transition-colors duration-200 ${cardBgClass}`}
         >
             <div className="flex justify-between items-center">
                 {/* Container para Checkbox, Título e Categoria */}
@@ -184,6 +185,7 @@ export function TaskItem({ task }: { task: Task }) {
                                 <>
                                     <span className="text-gray-400">|</span>
                                     <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap ${categoryClass}`}>
+                                        {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
                                         {task.category.name}
                                     </span>
                                 </>

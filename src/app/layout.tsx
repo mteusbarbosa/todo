@@ -1,15 +1,15 @@
 import "~/styles/globals.css";
-
+import { ThemeProvider } from "next-themes";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from 'react-hot-toast';
 import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
-  title: "Todo App",
-  keywords: ["Todo", "App"],
+  title: "Todo List",
+  keywords: ["Todo", "List"],
   authors: [{ name: "Mateus Barbosa" }],
-  description: "Todo app",
+  description: "Todo list",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
@@ -22,15 +22,17 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
+    <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
       <body>
-        <TRPCReactProvider>
-          <Toaster
-            position="bottom-right"
-            reverseOrder={false} 
-          />
-          {children}
-        </TRPCReactProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <TRPCReactProvider>
+            <Toaster
+              position="bottom-right"
+              reverseOrder={false}
+            />
+            {children}
+          </TRPCReactProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
