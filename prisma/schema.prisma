@@ -18,6 +18,9 @@ model Task {
     createdAt   DateTime  @default(now())
     category    Category? @relation(fields: [categoryId], references: [id])
     categoryId  Int?
+    order       Float
+
+    @@index([order])
 }
 
 model Category {

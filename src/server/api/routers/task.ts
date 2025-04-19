@@ -23,6 +23,10 @@ const toggleCompleteInputSchema = z.object({
   completed: z.boolean(),
 });
 
+const updateOrderInputSchema = z.object({
+  // Espera um array de IDs na nova ordem
+  orderedIds: z.array(z.number().int()),
+});
 
 const deleteInputSchema = z.object({
   id: z.number().int(),
@@ -60,11 +64,13 @@ export const taskRouter = createTRPCRouter({
         data: {
           title: input.title,
           description: input.description,
+          order: Date.now(),
           ...(input.categoryId && {
             category: {
               connect: { id: input.categoryId },
             },
           }),
+          // userId: ctx.session.user.id, // Se filtrar por usuário
         },
       });
       return task;
@@ -74,8 +80,8 @@ export const taskRouter = createTRPCRouter({
     .query(({ ctx }) => {
       return ctx.db.task.findMany({
         orderBy: [
-          { completed: 'asc' }, // Opcional: tarefas pendentes primeiro
-          { createdAt: 'desc' },
+          // Ordena principalmente pelo novo campo 'order'
+          { order: 'asc' },
         ],
         include: {
           category: true, // Inclui os dados da categoria relacionada
@@ -190,5 +196,32 @@ export const taskRouter = createTRPCRouter({
 
       return updatedTask; // Retorna a tarefa atualizada
     }),
-  // -----------------------------
+
+  updateOrder: publicProcedure
+    .input(updateOrderInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { orderedIds } = input;
+
+      // É crucial usar uma transação para garantir atomicidade
+      try {
+        await ctx.db.$transaction(
+          // Cria um array de Promises, uma para cada update
+          orderedIds.map((id, index) =>
+            ctx.db.task.update({
+              where: { id: id },
+              // Define o novo 'order' baseado na posição no array (índice + 1.0)
+              data: { order: index + 1.0 },
+            })
+          )
+        );
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to update task order:", error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Falha ao atualizar a ordem das tarefas.',
+          cause: error,
+        });
+      }
+    }),
 });

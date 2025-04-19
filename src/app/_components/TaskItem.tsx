@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { api } from "~/trpc/react";
 import type { api as serverApi } from "~/trpc/server";
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import DeleteConfirmation from './Toast';
 import router from 'next/router';
 
@@ -17,6 +19,22 @@ export function TaskItem({ task }: { task: Task }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const utils = api.useUtils();
     const router = useRouter();
+    const {
+        attributes, // Props para aplicar ao elemento arrastável (ex: role, aria)
+        listeners,  // Handlers de eventos (onPointerDown, onKeyDown) para iniciar o arraste
+        setNodeRef, // Ref para conectar ao elemento DOM arrastável
+        transform,  // Estilos CSS para a posição durante o arraste
+        transition, // Estilos CSS para a animação ao soltar
+        isDragging, // Booleano indicando se o item está sendo arrastado
+    } = useSortable({ id: task.id }); // Usa o ID da tarefa como identificador único
+
+    const style = {
+        transform: CSS.Transform.toString(transform), // Converte o objeto transform em string CSS
+        transition, // Aplica a transição
+        opacity: isDragging ? 0.5 : 1, // Opcional: Deixa o item semi-transparente ao arrastar
+        zIndex: isDragging ? 10 : 'auto', // Opcional: Garante que o item arrastado fique por cima
+        position: 'relative' as const, // Necessário para zIndex funcionar corretamente
+    };
 
     // Mutação com Atualização Otimista
     const toggleCompleteMutation = api.task.toggleComplete.useMutation({
@@ -136,35 +154,45 @@ export function TaskItem({ task }: { task: Task }) {
     const isMutating = toggleCompleteMutation.isPending || deleteTaskMutation.isPending;
 
     return (
-        <li className={`mb-4 rounded border border-gray-300 p-4 shadow-sm transition-colors duration-200 ${cardBgClass}`}>
+        <li
+            ref={setNodeRef} // Conecta o hook ao elemento
+            style={style}     // Aplica os estilos de transformação e transição
+            {...attributes}   // Aplica atributos de acessibilidade e role
+            className={`mb-4 rounded border border-gray-300 p-4 shadow-sm transition-colors duration-200 ${cardBgClass}`}
+        >
             <div className="flex justify-between items-center">
                 {/* Container para Checkbox, Título e Categoria */}
                 <div className="flex-grow mr-4 flex items-center space-x-3">
-                    {/* Checkbox */}
-                    <input
-                        type="checkbox"
-                        checked={task.completed}
-                        onChange={handleCheckboxChange}
-                        disabled={toggleCompleteMutation.isPending}
-                        className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50 cursor-pointer" // Adicionado cursor-pointer
-                        aria-labelledby={`task-title-${task.id}`}
-                    />
+                    <div className="flex items-center space-x-3 cursor-grab" {...listeners}>
+                        {/* Checkbox */}
+                        <input
+                            type="checkbox"
+                            checked={task.completed}
+                            onChange={handleCheckboxChange}
+                            disabled={toggleCompleteMutation.isPending}
+                            className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50 cursor-pointer" // Adicionado cursor-pointer
+                            aria-labelledby={`task-title-${task.id}`}
+                            onClick={(e) => e.stopPropagation()} // Impede que clicar no checkbox inicie o arraste
+                        />
 
-                    {/* Título e Categoria */}
-                    <div className="flex items-center space-x-2">
-                        <h3 id={`task-title-${task.id}`} className={`text-lg font-semibold ${titleClass}`}>
-                            {task.title}
-                        </h3>
-                        {task.category && (
-                            <>
-                                <span className="text-gray-400">|</span>
-                                <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap ${categoryClass}`}>
-                                    {task.category.name}
-                                </span>
-                            </>
-                        )}
+                        {/* Título e Categoria */}
+                        <div className="flex items-center space-x-2">
+                            <h3 id={`task-title-${task.id}`} className={`text-lg font-semibold ${titleClass}`}>
+                                {task.title}
+                            </h3>
+                            {task.category && (
+                                <>
+                                    <span className="text-gray-400">|</span>
+                                    <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap ${categoryClass}`}>
+                                        {task.category.name}
+                                    </span>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
+
+
 
                 {/* Botão de expandir/recolher (com SVG restaurado) */}
                 <button
