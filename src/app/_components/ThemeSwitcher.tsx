@@ -1,23 +1,19 @@
-// src/app/_components/ThemeSwitcher.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { MoonIcon, SunIcon } from "@heroicons/react/24/solid";
 import { useTheme } from "next-themes";
-import { SunIcon, MoonIcon } from "@heroicons/react/24/solid"; // Ou seus ícones preferidos
+import { useEffect, useState } from "react";
 
 export function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
-  // Garante que o componente só renderize no cliente após a montagem
-  // para evitar mismatch de hidratação com o tema padrão/localStorage
+  
   useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted) {
-    // Renderiza um placeholder ou nada no servidor/antes da montagem
-    // Ajuste o tamanho para corresponder ao botão final para evitar CLS
     return <div className="h-8 w-8" aria-hidden="true"></div>;
   }
 

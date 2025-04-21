@@ -1,8 +1,8 @@
-import "~/styles/globals.css";
-import { ThemeProvider } from "next-themes";
 import { type Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Geist } from "next/font/google";
 import { Toaster } from 'react-hot-toast';
+import "~/styles/globals.css";
 import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
