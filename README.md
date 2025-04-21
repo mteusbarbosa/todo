@@ -1,17 +1,55 @@
 # To-Do List
 
-[Breve descrição do seu projeto aqui]
+O **deploy** do projeto está disponível e você pode acessá-lo [aqui](https://todo-indol-omega-17.vercel).
 
-## Pré-requisitos
+---
+O To-Do List é um projeto desenvolvido com base na T3 Stack, aproveitando seus principais conceitos e tecnologias para criar uma aplicação web moderna, eficiente e type-safe.
+
+Tecnologias Utilizadas:
+
+<p align="left">
+  <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js"/>
+  </a>
+  <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
+    <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
+  </a>
+  <a href="https://trpc.io/" target="_blank" rel="noreferrer">
+    <img src="https://img.shields.io/badge/tRPC-3974A8?style=for-the-badge&logo=trpc&logoColor=white" alt="tRPC"/>
+  </a>
+  <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
+    <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS"/>
+  </a>
+  <a href="https://www.prisma.io/" target="_blank" rel="noreferrer">
+    <img src="https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma"/>
+  </a>
+  <a href="https://www.postgresql.org" target="_blank" rel="noreferrer">
+    <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+  </a>
+  <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
+    <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/>
+  </a>
+</p>
+
+* **Next.js**: Framework React para renderização no servidor e geração de sites estáticos.
+* **TypeScript**: Superset do JavaScript que adiciona tipagem estática.
+* **tRPC**: Para construir APIs type-safe de ponta a ponta sem a necessidade de geração de código ou schemas.
+* **Tailwind CSS**: Framework CSS utility-first para estilização rápida e customizável.
+* **Prisma**: ORM (Object-Relational Mapper) para interagir com o banco de dados (PostgreSQL neste caso) de forma segura e intuitiva.
+* **Docker:** Plataforma para desenvolver, enviar e executar aplicações em containers.
+
+## Configurando a aplicação para rodar localmente
+
+### Pré-requisitos
 
 Antes de começar, certifique-se de ter as seguintes ferramentas instaladas na sua máquina:
 
 * [Node.js](https://nodejs.org/)
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-## Configurando a aplicação para rodar localmente
-
 ### 1. Clone o Repositório
+
+Abra o terminal em sua pasta de prefeência e execute os seguinte comandos:
 
 ```bash
 git clone https://github.com/mteusbarbosa/todo.git
