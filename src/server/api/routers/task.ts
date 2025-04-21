@@ -2,45 +2,17 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc"; // protectedProcedure, // Use se tiver autenticação
+import { deleteInputSchema, getByIdInputSchema, toggleCompleteInputSchema, updateOrderInputSchema, updateTaskInputSchema } from "../schemas/task.schema";
 
-// --- Schema para input de update ---
-const updateTaskInputSchema = z.object({
-  id: z.number().int(), // ID da tarefa a ser atualizada
-  title: z.string().min(1, "O título é obrigatório."), // Título atualizado
-  description: z.string().min(1, "A descrição é obrigatória."), // Descrição atualizada
-  // Permite number, null ou undefined.
-  // nullish() = optional().nullable()
-  categoryId: z.number().int().nullish(),
-});
-
-// Schema para input de getById (necessário para a página de edição)
-const getByIdInputSchema = z.object({
-  id: z.number().int(),
-});
-
-const toggleCompleteInputSchema = z.object({
-  id: z.number().int(),
-  completed: z.boolean(),
-});
-
-const updateOrderInputSchema = z.object({
-  // Espera um array de IDs na nova ordem
-  orderedIds: z.array(z.number().int()),
-});
-
-const deleteInputSchema = z.object({
-  id: z.number().int(),
-});
 
 export const taskRouter = createTRPCRouter({
-  // --- Procedure getById ---
+  
   getById: publicProcedure
     .input(getByIdInputSchema)
     .query(async ({ ctx, input }) => {
       const task = await ctx.db.task.findUnique({
         where: { id: input.id },
-        // where: { id: input.id, userId: ctx.session.user.id }, // Se filtrar por usuário
-        include: { category: true }, // Inclui categoria se necessário
+        include: { category: true },
       });
 
       if (!task) {
@@ -51,7 +23,7 @@ export const taskRouter = createTRPCRouter({
       }
       return task;
     }),
-  // Procedimento para criar uma nova tarefa (Mutation)
+  
   create: publicProcedure
     .input(z.object({
       title: z.string().min(1, "O título é obrigatório."),
@@ -59,7 +31,6 @@ export const taskRouter = createTRPCRouter({
       categoryId: z.number().int().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      // Usa o Prisma Client (ctx.db) para criar a tarefa no banco de dados
       const task = await ctx.db.task.create({
         data: {
           title: input.title,
@@ -70,35 +41,30 @@ export const taskRouter = createTRPCRouter({
               connect: { id: input.categoryId },
             },
           }),
-          // userId: ctx.session.user.id, // Se filtrar por usuário
         },
       });
       return task;
     }),
 
-  getAll: publicProcedure // ou protectedProcedure
+  getAll: publicProcedure
     .query(({ ctx }) => {
       return ctx.db.task.findMany({
         orderBy: [
-          // Ordena principalmente pelo novo campo 'order'
           { order: 'asc' },
         ],
         include: {
-          category: true, // Inclui os dados da categoria relacionada
+          category: true,
         },
-        // where: { userId: ctx.session.user.id } // Se filtrar por usuário
       });
     }),
 
-  toggleComplete: publicProcedure // ou protectedProcedure
-    .input(toggleCompleteInputSchema) // Valida o input
+  toggleComplete: publicProcedure 
+    .input(toggleCompleteInputSchema) 
     .mutation(async ({ ctx, input }) => {
       const { id, completed } = input;
 
-      // Opcional: Verificar se a tarefa existe antes de tentar atualizar
       const taskExists = await ctx.db.task.findUnique({
         where: { id },
-        // where: { id, userId: ctx.session.user.id } // Se filtrar por usuário
       });
 
       if (!taskExists) {
@@ -108,29 +74,25 @@ export const taskRouter = createTRPCRouter({
         });
       }
 
-      // Atualiza o status 'completed' da tarefa no banco
       const updatedTask = await ctx.db.task.update({
         where: {
           id: id,
-          // where: { id, userId: ctx.session.user.id } // Se filtrar por usuário
         },
         data: {
           completed: completed,
         },
       });
 
-      return updatedTask; // Retorna a tarefa atualizada
+      return updatedTask;
     }),
 
   delete: publicProcedure
-    .input(deleteInputSchema) // Valida o input (apenas o ID)
+    .input(deleteInputSchema) 
     .mutation(async ({ ctx, input }) => {
       const { id } = input;
 
-      // 1. Verificar se a tarefa existe (importante!)
       const taskExists = await ctx.db.task.findUnique({
         where: { id },
-        // where: { id, userId: ctx.session.user.id } // Se filtrar por usuário
       });
 
       if (!taskExists) {
@@ -140,27 +102,22 @@ export const taskRouter = createTRPCRouter({
         });
       }
 
-      // 2. Excluir a tarefa
       await ctx.db.task.delete({
         where: {
           id: id,
-          // where: { id, userId: ctx.session.user.id } // Se filtrar por usuário
         },
       });
 
-      // 3. Retornar sucesso (pode retornar o ID ou um objeto de sucesso)
       return { success: true, deletedId: id };
     }),
 
   update: publicProcedure
-    .input(updateTaskInputSchema) // Valida o input de atualização
+    .input(updateTaskInputSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, title, description, categoryId } = input;
 
-      // 1. Verificar se a tarefa existe
       const taskExists = await ctx.db.task.findUnique({
         where: { id },
-        // where: { id, userId: ctx.session.user.id }, // Se filtrar por usuário
       });
 
       if (!taskExists) {
@@ -170,31 +127,18 @@ export const taskRouter = createTRPCRouter({
         });
       }
 
-      // 2. Atualizar a tarefa no banco de dados
       const updatedTask = await ctx.db.task.update({
         where: {
           id: id,
-          // where: { id, userId: ctx.session.user.id }, // Se filtrar por usuário
         },
         data: {
           title: title,
           description: description,
-          // Atualiza categoryId. Prisma define como null se categoryId for null,
-          // ou conecta se for um número. Se for undefined (não incluído no input), não altera.
-          // Como nosso schema tem `nullish()`, ele pode ser number, null ou undefined.
-          // Se for undefined, não queremos atualizar, então filtramos.
           ...(categoryId !== undefined && { categoryId: categoryId }),
-
-          // Alternativa mais explícita para Prisma < 4.x ou clareza:
-          // category: categoryId === null
-          //     ? { disconnect: true } // Desconecta se for null
-          //     : categoryId !== undefined
-          //         ? { connect: { id: categoryId } } // Conecta se for número
-          //         : undefined // Não faz nada se for undefined
         },
       });
 
-      return updatedTask; // Retorna a tarefa atualizada
+      return updatedTask;
     }),
 
   updateOrder: publicProcedure
@@ -202,14 +146,11 @@ export const taskRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { orderedIds } = input;
 
-      // É crucial usar uma transação para garantir atomicidade
       try {
         await ctx.db.$transaction(
-          // Cria um array de Promises, uma para cada update
           orderedIds.map((id, index) =>
             ctx.db.task.update({
               where: { id: id },
-              // Define o novo 'order' baseado na posição no array (índice + 1.0)
               data: { order: index + 1.0 },
             })
           )
