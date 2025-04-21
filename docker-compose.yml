@@ -1,0 +1,32 @@
+version: '3.8' # Especifica a versão do Docker Compose
+
+services:
+  # Nome do serviço (pode ser qualquer nome, ex: 'db', 'postgres')
+  postgres:
+    # Imagem oficial do PostgreSQL que será usada
+    image: postgres:15 # Recomendo usar uma versão específica (ex: 15) em vez de 'latest' para estabilidade
+    container_name: todo-postgres # Nome fácil de identificar para o container
+    restart: always # Reinicia o container automaticamente se ele parar
+    environment:
+      # Variáveis de ambiente para configurar o PostgreSQL
+      POSTGRES_USER: ${DB_USER} # Nome de usuário (será lido do .env)
+      POSTGRES_PASSWORD: ${DB_PASSWORD} # Senha (será lido do .env)
+      POSTGRES_DB: ${DB_NAME} # Nome do banco de dados a ser criado (será lido do .env)
+    ports:
+      # Mapeia a porta do seu computador (host) para a porta do container
+      # Formato: "HOST:CONTAINER"
+      # Use uma porta diferente no HOST (ex: 5433) se você já tiver o Postgres rodando localmente na 5432
+      - "${DB_PORT_HOST}:5432"
+    volumes:
+      # Garante que os dados do banco persistam mesmo se o container for removido/recriado
+      # 'postgres_data' é um volume nomeado gerenciado pelo Docker
+      - postgres_data:/var/lib/postgresql/data
+
+# Define os volumes nomeados usados pelos serviços
+volumes:
+  postgres_data:
+    driver: local # Usa o driver de volume local padrão
+
+# docker compose up -d
+# docker ps para verificar se o container está rodando
+# npx prisma migrate dev --name init para criar o banco de dados e aplicar as migrações
