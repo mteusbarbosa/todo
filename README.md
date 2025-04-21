@@ -1,29 +1,80 @@
-# Create T3 App
+# To-Do List
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+[Breve descrição do seu projeto aqui]
 
-## What's next? How do I make an app with this?
+## Pré-requisitos
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+Antes de começar, certifique-se de ter as seguintes ferramentas instaladas na sua máquina:
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+* [Node.js](https://nodejs.org/)
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## Configurando a aplicação para rodar localmente
 
-## Learn More
+### 1. Clone o Repositório
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+```bash
+git clone https://github.com/mteusbarbosa/todo.git
+cd todo
+```
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### 2. Instale as Dependências
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+Instale as dependências do projeto listadas no package.json:
 
-## How do I deploy this?
+```bash
+npm install
+```
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+### 3. Configure as Variáveis de Ambiente
+
+Este projeto utiliza variáveis de ambiente para configurar a conexão com o banco de dados e outras configurações. Como o arquivo .env não está incluído no repositório por segurança, você precisará criá-lo manualmente.
+
+* Crie um arquivo chamado .env na raiz do projeto.
+* Copie o conteúdo abaixo para o seu arquivo .env e substitua os valores pelos seus próprios (escolha o nome do usuário e senha para o banco de dados).
+
+```dotenv
+# Configurações do Banco de Dados (PostgreSQL via Docker)
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha
+DB_NAME=todo-postgres
+DB_PORT_HOST=5432 # Porta no seu PC para acessar o banco (mude se 5432 já estiver ocupada)
+
+# String de conexão para a aplicação
+DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT_HOST}/${DB_NAME}"
+```
+
+### 4. Configure e Inicie o Banco de Dados (Docker)
+
+Usamos Docker Compose para gerenciar o container do banco de dados PostgreSQL.
+
+* Certifique-se de que o Docker Desktop esteja em execução.
+* No terminal, na raiz do projeto (onde está o arquivo docker-compose.yml), execute o seguinte comando para baixar a imagem do PostgreSQL (se ainda não tiver) e iniciar o container em segundo plano:
+
+```bash
+docker compose up -d
+```
+
+* Você pode verificar se o container está rodando com:
+
+```bash
+docker ps
+```
+
+Você deverá ver um container chamado `todo-postgres`.
+
+### 5. Execute as Migrações do Banco de Dados
+
+Com o banco de dados rodando no Docker, precisamos criar as tabelas e a estrutura inicial definidas no Prisma.schema:
+
+```bash
+npx prisma migrate dev --name init
+```
+
+### 6. Execute
+
+Finalmente, inicie o servidor de desenvolvimento para visualizar o projeto:
+
+```bash
+npm run dev
+```
